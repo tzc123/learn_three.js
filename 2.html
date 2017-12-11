@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+    }
+    #frame {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="frame"></div>
+</body>
+<script src="./three.min.js"></script>
+<script src="./three.js/examples/js/libs/stats.min.js"></script>
+<script src="./three.js/examples/js/controls/TrackballControls.js"></script>
+<script>
+    let t = THREE
+    let log = console.log
+    let renderer,width,height,camera,scene,light,cube,spheres = [],lines = [],stats
+    for (let i = 0; i < 100; i++) {
+      lines.push([])
+    }
+    
+    function initThree () {
+      width = document.getElementById('frame').clientWidth
+      height = document.getElementById('frame').clientHeight
+      renderer = new t.WebGLRenderer({
+        antialias: true
+      })
+      renderer.setSize(width, height)
+      renderer.setClearColor(0x444444, 1.0);
+      log('setSized')
+      document.getElementById('frame').appendChild(renderer.domElement)
+      // renderer.setClearColor(0xFFFFFF, 1);
+      log('setColored')
+      window.addEventListener('resize', handleResize)
+      stats = new Stats();
+      stats.domElement.style.position = 'absolute';
+      stats.domElement.style.top = '0px';
+      document.body.appendChild( stats.domElement );
+    }
+    function initCamera() {
+      // 透视投影相机
+      camera = new t.PerspectiveCamera(75, width/height, 0.1, 200)
+      camera.position.set(100, 100, 100)
+      camera.up.x = 0
+      camera.up.y = 0
+      camera.up.z = 1
+      camera.lookAt({
+        x: 0,
+        y: 0,
+        z: 0
+      })
+      //正交投影相机
+      // camera = new t.OrthographicCamera(-60,60, 60, -60, 0, 200)
+      // camera.position.set(100, 100, 100)
+      // camera.lookAt({
+      //   x: 0,
+      //   y: 0,
+      //   z: 0
+      // })
+      // log(camera)
+      // 轨迹球控制 鼠标左击旋转  右击平移 滚轮远近
+      controls = new THREE.TrackballControls( camera );
+      // 旋转速度
+      controls.rotateSpeed = 1.0;
+      // 变焦速度
+      controls.zoomSpeed = 1.2;
+      // 平移速度
+      controls.panSpeed = 0.8;
+      // 是否不变焦
+      controls.noZoom = false;
+      // 是否不平移
+      controls.noPan = false;
+      // 是否有惯性
+      controls.staticMoving = true;
+      // 动态阻尼系数 就是灵敏度
+      controls.dynamicDampingFactor = 0.3;
+      // [ rotateKey, zoomKey, panKey ]
+      controls.keys = [ 65, 83, 68 ];
+    }
+    function initScene() {
+      scene = new t.Scene()
+    }
+    function initLight() {
+      light = new t.DirectionalLight(0xffffff, 1.0, 0)
+      light.position.set(100, 100, 100)
+      scene.add(light)
+    }
+    class Sphere {
+      constructor(radius,x,y,z,speed,direction) {
+        let geometry = new t.SphereGeometry(radius,15,15)
+        let material = new t.MeshLambertMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.2
+        })
+        let sphere = new THREE.Mesh(geometry, material)
+        sphere.position.set(x, y, z)
+        this.content = sphere
+        this.speed = speed
+        this.direction = direction
+      }
+      update() {
+        let position = this.content.position
+        let direction = this.direction
+        let speed = this.speed
+        if (position.x>100||position.x<0) {
+          this.direction.x = -direction.x
+          this.content.position.x = position.x>100?100:0
+        }
+        if (position.y>100||position.y<0) {
+          this.direction.y = -direction.y
+          this.content.position.y = position.y>100?100:0
+        }
+        if (position.z>100||position.z<0) {
+          this.direction.z = -direction.z
+          this.content.position.z = position.z>100?100:0
+        }
+        let x = direction.x
+        let y = direction.y
+        let z = direction.z
+        this.content.translateOnAxis({
+          x: direction.x,
+          y: direction.y,
+          z: direction.z
+          }, speed)
+      }
+    }
+    class Line {
+      constructor(v1, v2) {
+        let geometry = new THREE.Geometry();
+        geometry.vertices.push( new THREE.Vector3( v1.x, v1.y, v1.z ) );
+        geometry.vertices.push( new THREE.Vector3( v2.x, v2.y, v2.z ) );
+        let line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: 0xeeeeee, opacity: 0.1, transparent: true } ) );
+        return line
+      }
+    }
+    function initObject() {
+      for(let i = 0; i < 50; i++) {
+        let sphere = new Sphere(
+          Math.random()*0.1+1,
+          Math.random()*100,
+          Math.random()*100,
+          Math.random()*100,
+          Math.random()*0.04+0.04,
+          {
+            x: Math.random()-0.5,
+            y: Math.random()-0.5,
+            z: Math.random()-0.5
+          }
+        )
+        spheres.push(sphere)
+        scene.add(sphere.content)
+      }
+      console.log(spheres)
+    }
+    function init() {
+      log('begin')
+      initThree()
+      log('rendered')
+      initCamera()
+      log('Camera is ready')
+      initScene()
+      log('Scene is ready')
+      initLight()
+      log('Light is ready')
+      initObject()
+      log('object ready')
+      render()
+    }
+    function handleResize() {
+      let height = window.innerHeight
+      let width = window.innerWidth
+      camera.aspect = width/height
+      camera.updateProjectionMatrix();
+      renderer.setSize( width, height );
+    }
+    function animate() {
+      requestAnimationFrame( animate );
+      controls.update();
+      stats.update();
+      for(let i = 0; i < spheres.length; i++) {
+        spheres[i].update()
+        for(let j = 0; j < spheres.length; j++) {
+          let p1 = spheres[i].content.position
+          let p2 = spheres[j].content.position
+          let duration = Math.sqrt(Math.abs(p1.x*p1.x-p2.x*p2.x)+Math.abs(p1.y*p1.y-p2.y*p2.y)+Math.abs(p1.z*p1.z-p2.z*p2.z))
+          if (duration <= 55) {
+            let line
+            if (!lines[i][j]) {
+              line = new Line(p1,p2)
+              scene.add(line)
+              lines[i][j] = line  
+            } else {
+              lines[i][j].geometry.vertices[0].set(p1.x,p1.y,p1.z)
+              lines[i][j].geometry.vertices[1].set(p2.x,p2.y,p2.z)
+              lines[i][j].geometry.verticesNeedUpdate = true
+            } 
+          } else {
+            if(!!lines[i][j]) {
+              scene.remove(lines[i][j])
+              lines[i][j] = null
+            }
+          }
+        }
+      }
+      render()
+    }
+    function render() {
+      renderer.render( scene, camera );
+    }
+    init()
+    animate()
+  </script>
+</html>

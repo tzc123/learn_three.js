@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+  *{
+    margin: 0;
+    padding: 0;
+  }
+  </style>
+</head>
+
+<body>
+</body>
+<script src="./three.min.js"></script>
+<script src="./three.js/examples/js/controls/TrackballControls.js"></script>
+<script>
+  const t = THREE;
+  let width= window.innerWidth,
+    height= window.innerHeight,
+    renderer,
+    camera,
+    scene,
+    light,
+    stats,
+    sphere;
+  function initRenderer() {
+    renderer = new t.WebGLRenderer({
+      antialias: true
+    })
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x444444, 1.0);
+    window.addEventListener('resize', onResize);
+    document.body.appendChild(renderer.domElement);
+  }
+  function initCamera() {
+    camera = new t.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.set(0, 200, 200);
+    camera.up.x = 0
+    camera.up.y = -1
+    camera.up.z = 0
+    camera.lookAt({
+      x: 0,
+      y: 0,
+      z: 0
+    });
+    controls = new THREE.TrackballControls( camera );
+    // // 旋转速度
+    // controls.rotateSpeed = 1.0;
+    // // 变焦速度
+    // controls.zoomSpeed = 1.2;
+    // // 平移速度
+    // controls.panSpeed = 0.8;
+    // // 是否不变焦
+    // controls.noZoom = false;
+    // // 是否不平移
+    // controls.noPan = false;
+    // // 是否有惯性
+    // controls.staticMoving = true;
+    // // 动态阻尼系数 就是灵敏度
+    // controls.dynamicDampingFactor = 0.3;
+    // // [ rotateKey, zoomKey, panKey ]
+    // controls.keys = [ 65, 83, 68 ];
+    scene.add(camera)
+  }
+  function initScene() {
+    scene = new t.Scene();
+  }
+  function initLight() {
+    light = new t.DirectionalLight(0xffffff, 1.0, 0)
+    light.position.set(0, 100, 100)
+
+    scene.add(light)
+  }
+  function initObject() {
+    let geometry = new THREE.PlaneBufferGeometry( 200,200);
+    let material = new THREE.MeshPhongMaterial( {color: 0x00ffff} );
+    let plane = new THREE.Mesh( geometry, material );
+    scene.add( plane );
+    geometry = new THREE.ConeGeometry( 15, 50, 64 );
+    material = new THREE.MeshPhongMaterial( {color: 0xffff00} );
+    cone = new THREE.Mesh( geometry, material );
+    cone.rotateX(Math.PI/2)
+    cone.translateY(25)
+    scene.add( cone );
+    // let geometry = new t.SphereGeometry(30,15,15)
+    // let material = new t.MeshBasicMaterial({
+    //   wireframe: true,
+    //   color: 0xffffff
+    // })
+    // console.log(geometry)
+    // sphere = new THREE.Mesh(geometry, material)
+    // scene.add(sphere)
+  }
+  function onResize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+  }
+  function animate() {
+    requestAnimationFrame(animate)
+    controls.update()
+    render()
+  }
+  function render() {
+    renderer.render(scene, camera);
+  }
+  function init() {
+    initRenderer();
+    initScene();
+    initCamera();
+    initLight();
+    initObject();
+  }
+  init();
+  animate();
+</script>
+
+</html>
