@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+    }
+    #frame {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="frame"></div>
+</body>
+<script src="./three.min.js"></script>
+<script>
+    var t = THREE
+    var log = console.log
+    var renderer,width,height,camera,scene,light,cube
+    
+    function initThree () {
+      width = document.getElementById('frame').clientWidth
+      height = document.getElementById('frame').clientHeight
+      renderer = new t.WebGLRenderer({
+        antialias: true
+      })
+      renderer.setSize(width, height)
+      log('setSized')
+      document.getElementById('frame').appendChild(renderer.domElement)
+      renderer.setClearColor(0x9900ff, 1);
+      log('setColored')
+    }
+    function initCamera() {
+      camera = new t.PerspectiveCamera(75, width/height, 0.1, 100000)
+      camera.position.set(0, 0, 1000)
+      camera.up.x = 0
+      camera.up.y = 1
+      camera.up.z = 0
+      camera.lookAt({
+        x: 0,
+        y: 0,
+        z: 0
+      })
+    }
+    function initScene() {
+      scene = new t.Scene()
+    }
+    function initLight() {
+      light = new t.DirectionalLight(0x000000, 1.0, 0)
+      light.position.set(100, 100, 200)
+      scene.add(light)
+    }
+    function initObject() {
+      var geometry = new t.Geometry()
+      var material = new t.LineBasicMaterial({ color: 0x00ff00 })
+      var p1 = new t.Vector3(0, -500, 0)
+      var p2 = new t.Vector3(0, 500, 0)
+      geometry.vertices.push(p1)
+      geometry.vertices.push(p2)
+      var line = new t.Line(geometry, material, t.LineSegments)
+      for (var i = 0; i < 100; i++) {
+        var line = new t.Line(geometry, material, t.LineSegments)
+        line.position.x = 500 - i * 50
+        scene.add(line)
+        var line = new t.Line(geometry, material, t.LineSegments)
+        line.position.y = 50 * i
+        line.rotation.z = -Math.PI/2
+        scene.add(line)
+      }
+    }
+    function run() {
+      log('begin')
+      initThree()
+      log('rendered')
+      initCamera()
+      log('Camera is ready')
+      initScene()
+      log('Scene is ready')
+      // initLight()
+      // log('Light is ready')
+      initObject()
+      log('object ready')
+      renderer.clear()
+      renderer.render(scene, camera)
+    }
+    run()
+</script>
+</html>
