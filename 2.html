@@ -24,7 +24,7 @@
 <body>
   <div id="frame"></div>
 </body>
-<script src="./three.min.js"></script>
+<script src="./three.js/build/three.min.js"></script>
 <script src="./three.js/examples/js/libs/stats.min.js"></script>
 <script src="./three.js/examples/js/controls/TrackballControls.js"></script>
 <script>
@@ -55,7 +55,7 @@
     }
     function initCamera() {
       // 透视投影相机
-      camera = new t.PerspectiveCamera(75, width/height, 0.1, 200)
+      camera = new t.PerspectiveCamera(50, width/height, 0.1, 400)
       camera.position.set(100, 100, 100)
       camera.up.x = 0
       camera.up.y = 0
@@ -157,7 +157,7 @@
           Math.random()*100,
           Math.random()*100,
           Math.random()*100,
-          Math.random()*0.04+0.04,
+          Math.random()*0.04+0.1,
           {
             x: Math.random()-0.5,
             y: Math.random()-0.5,

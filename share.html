@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>分享</title>
+  <style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  html,
+  body,
+  .container {
+    height: 100%;
+    width: 100%;
+    font-family: '微软雅黑';
+  }
+  .page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background: #ffffff;
+    overflow: scroll;
+  }
+  .page.active.leave {
+    animation: leave 1s;
+    z-index: 999;
+  }
+  .page.active {
+    display: block;
+  }
+  .pull-top {
+    z-index: 999;
+  }
+  .title {
+    height: 100px;
+    font-size: 50px;
+    letter-spacing: 20px;
+    font-weight: 200;
+    text-align: center;
+    line-height: 100px;
+    border-bottom: 1px solid #ececec;
+  }
+  .renderer-wrapper {
+    margin: 20px 0;
+    width: 1000px;
+    height: 600px;
+  }
+  a {
+    text-decoration: none;
+    color: #7799ee
+  }
+  article {
+    margin: 100px 250px;
+    font-size: 30px;
+    font-weight: 300;
+    line-height: 50px;
+  }
+  @keyframes leave {
+    form {
+      left: 0;
+    }
+    to {
+      left: -100%;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page page1 active">
+      <div class="title">WebGL three.js  ?</div>
+      <article>
+        百度百科：WebGL（全写Web Graphics Library）是一种<b>3D绘图协议</b>，这种绘图技术标准允许把<b>JavaScript</b>和<b>OpenGL ES 2.0</b>结合在一起，通过增加OpenGL ES 2.0的一个JavaScript绑定，WebGL可以为HTML5 Canvas提供硬件3D加速渲染，这样Web开发人员就可以借助系统显卡来在浏览器里更流畅地展示3D场景和模型了，还能创建复杂的导航和数据视觉化。显然，WebGL技术标准免去了开发网页专用渲染插件的麻烦，可被用于创建具有复杂3D结构的网站页面，甚至可以用来设计3D网页游戏等等。
+        <br><span data-text="WebGL是一种把JavaScript和OpenGL结合在一起的3D绘图协议"><a class="hidde-text">=></a></span>
+        <br><br><span data-text="底层作图API，控制显卡绘制2D/3D图像"><a class="hidde-text">OpenGL: </a></span>
+        <br><br><span data-text="基于OpenGL的JavaScript API"><a class="hidde-text">WebGL: </a></span>
+        <br><br><span data-text="JavaScript编写的WebGL第三方库。提供了非常多的3D显示功能。"><a class="hidde-text">three.js: </a></span>
+        <br> <span data-text=" WebGL牵扯到很多数学运算，步骤很复杂，容易出错 -> three.js把复杂的WebGL API简化"><a class="hidde-text">=></a></span>
+        <br><br><a class="demo1" href="javascript:;">DEMO</a>
+        <div class="renderer-wrapper"></div>
+        <a class="flip" data-index="2">three.js -></a>
+      </article>
+    </div>
+    <div class="page page2">
+      <div class="title">three.js</div>
+      <article>
+        renderer: 渲染器
+        <br><br>scene: 场景/舞台
+        <br><br>camera: 相机/眼睛
+        <br><br>light: 灯光/阳光
+        <br><br>object: 物体/对象
+      </article>
+    </div>
+    <div class="page page3">
+      <div class="title"></div>
+      <article></article>
+    </div>
+    <div class="page page4">
+      <div class="title"></div>
+      <article></article>
+    </div>
+    <div class="page page5">
+      <div class="title"></div>
+      <article></article>
+    </div>
+    <div class="page page6">
+      <div class="title"></div>
+      <article></article>
+    </div>
+    <div class="page page7">
+      <div class="title"></div>
+      <article></article>
+    </div>
+    <div class="page page8">
+      <div class="title"></div>
+      <article></article>
+    </div>
+    <div class="page page9">
+      <div class="title"></div>
+      <article></article>
+    </div>
+    <div class="page page10">
+      <div class="title"></div>
+      <article></article>
+    </div>
+  </div>
+  <script src="./three.js/build/three.min.js"></script>
+  <script>
+    const t = THREE
+    const log = console.log
+    let width = window.innerWidth,
+        height = window.innerHeight,
+        renderer,
+        camera,
+        scene
+    // 翻页
+    function flip(val) {
+      let currentPage = document.querySelector('.active')
+      let newPage = document.querySelector('.page' + val)
+      if (currentPage === newPage) return
+      currentPage.classList.add('leave')
+      newPage.classList.add('active')
+      currentPage.addEventListener('animationend', () => {
+        currentPage.classList.remove('active')
+        currentPage.classList.remove('leave')
+      })
+    }
+    function initRenderer(ele, config) {
+      renderer = new t.WebGLRenderer()
+      renderer.setClearColor(config.color || 0x000000)
+      renderer.setSize(config.width || width, config.height || height)
+      ele.appendChild(renderer.domElement || document.body)
+    }
+    function removeRenderer(ele) {
+      ele.removeChild(ele.childNodes[0])
+    }
+    function initScene() {
+      scene = new t.Scene()
+    }
+    function initCamera() {
+      camera = new t.PerspectiveCamera(75, width/height, 0.1, 200)
+      camera.position.set(100, 100, 100)
+      camera.up.x = 0
+      camera.up.y = 0
+      camera.up.z = 1
+      camera.lookAt({
+        x: 0,
+        y: 0,
+        z: 0
+      })
+    }
+    function render() {
+      renderer.render(scene, camera)
+    }
+    class Line {
+      constructor(v1, v2) {
+        let geometry = new THREE.Geometry();
+        geometry.vertices.push( new THREE.Vector3( v1.x, v1.y, v1.z ) );
+        geometry.vertices.push( new THREE.Vector3( v2.x, v2.y, v2.z ) );
+        let line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: 0xeeeeee, opacity: 0.1, transparent: true } ) );
+        return line
+      }
+    }
+    function init() {
+      document.querySelectorAll('.hidde-text').forEach(item => {
+        item.addEventListener('click', () => {
+          let textWrapper = item.parentElement
+          textWrapper.innerHTML += textWrapper.dataset.text
+        })
+      })
+      let flipEle = document.querySelectorAll('.flip')
+      flipEle.forEach(item => {
+        item.addEventListener('click', () => {
+          flip(item.dataset.index)
+          let rendererWrappers = document.querySelectorAll('.renderer-wrapper')
+          !!rendererWrappers && rendererWrappers.forEach(item => {
+            removeRenderer(item)
+          })
+        })
+      })
+      document.querySelector('.demo1').addEventListener('click', () => {
+        let iframe = document.createElement('iframe')
+        iframe.src = 'file:///Users/tzc123/workspace/three/2.html'
+        iframe.width = 1000
+        iframe.height = 600
+        document.querySelector('.page1 .renderer-wrapper').appendChild(iframe)
+      })
+      // document.querySelector('.demo2').addEventListener('click', () => {
+      //   initRenderer(document.querySelector('.page2 .renderer-wrapper'), {
+      //     color: 0x00ff00,
+      //     width: 300,
+      //     height: 300
+      //   })
+      //   initScene()
+      //   initCamera()
+      //   let o = {
+      //     x: 0,
+      //     y: 0,
+      //     z: 0,
+      //   }
+      //   let line1 = new Line(o, {
+      //     x: 1000,
+      //     y: 0,
+      //     z: 0
+      //   })
+      //   scene.add(line1)
+      // })
+    }
+    init()
+  </script>
+</body>
+</html>
