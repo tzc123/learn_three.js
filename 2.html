@@ -105,9 +105,9 @@
         constructor(radius, x, y, z, speed, direction) {
             let geometry = new t.SphereGeometry(radius, 15, 15)
             let material = new t.MeshLambertMaterial({
-                color: 0x999999,
+                color: 0xaaaaaa,
                 transparent: true,
-                opacity: 0.3
+                opacity: 0.2
             })
             let sphere = new THREE.Mesh(geometry, material)
             sphere.position.set(x, y, z)
@@ -151,7 +151,7 @@
             ]);
             geometry.attributes.position = new THREE.BufferAttribute(positions, 3);
             geometry.attributes.position.onUploadCallback = () => { };
-            let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x999999, opacity: 0.2, transparent: true }));
+            let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0xaaaaaa, opacity: 0.2, transparent: true }));
             return line
         }
     }
@@ -169,7 +169,7 @@
         mesh.position.set(25, 25, 25);
         scene.add(mesh); //网格模型添加到场景中
         
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 30; i++) {
             let sphere = new Sphere(
                 1,
                 Math.random() * 50,
@@ -217,7 +217,7 @@
                 let p1 = spheres[i].content.position
                 let p2 = spheres[j].content.position
                 let duration = Math.sqrt(Math.abs(p1.x * p1.x - p2.x * p2.x) + Math.abs(p1.y * p1.y - p2.y * p2.y) + Math.abs(p1.z * p1.z - p2.z * p2.z))
-                if (duration <= 30) {
+                if (duration <= 25) {
                     let line
                     if (!lines[i][j]) {
                         line = new Line(p1, p2)

@@ -24,8 +24,8 @@
     </style>
 </head>
 <body>
-    <!-- <input id="input">
-    <button id="button">确定</button> -->
+    <input id="input">
+    <button id="button">确定</button>
     <!-- <canvas id="canvas" width="600" height="100"></canvas>
     <canvas id="canvas2" width="600" height="100"></canvas> -->
     <div id="content"></div>
@@ -44,16 +44,16 @@
         });
 
         renderer.setSize(width, height);
-        renderer.setClearColor(0xffffff, 1.0);
+        renderer.setClearColor(0xf9f9f9, 1.0);
         content.appendChild(renderer.domElement);
 
         // init camera
-        camera = new t.PerspectiveCamera(50, width / height, 0.1, 400);
-        camera.position.set(100, 0, 300)
-        camera.up.x = 0
+        camera = new t.PerspectiveCamera(50, width / height, 0.1, 500);
+        camera.position.set(1, 1, 200)
+        camera.up.x = -1
         camera.up.y = 0
         camera.up.z = 1
-        camera.lookAt(0,0,0)
+        camera.lookAt(width / 2, height / 2, 0)
         // 初始化轨迹球
         controls = new t.TrackballControls(camera, content);
         // 旋转速度
@@ -80,10 +80,11 @@
 
         class Point {
             constructor(x, y, z) {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-                let geometry = new t.SphereGeometry(0.2, 10, 10)
+                this.sourceX = x;
+                this.sourceY = y;
+                this.sourceZ = z;
+                this.running = false;
+                let geometry = new t.SphereGeometry(0.5, 10, 10)
                 let material = new t.MeshLambertMaterial({
                     color: 0x000000,
                     // transparent: true,
@@ -95,20 +96,45 @@
             }
             setDestination(x, y, z) {
                 this.destination = { x, y, z };
+                this.running = true;
+            }
+            update() {
+                if (!this.running) return;
+                // if (
+                //     this.mesh.position.x === this.destination.x
+                //     && this.mesh.position.y === this.destination.y
+                //     && this.mesh.position.z === this.destination.z
+                // ) {
+                //     console.log(0)
+
+                // }
+                this.mesh.translateOnAxis(
+                    {
+                        x: this.destination.x - this.mesh.position.x,
+                        y: this.destination.y - this.mesh.position.y,
+                        z: this.destination.z - this.mesh.position.z,
+                    },
+                    0.05
+                )
+                if (
+                    Math.abs(this.mesh.position.y - this.destination.y) < 0.01
+                ) {
+                    this.running = false;
+                    return;
+                }
             }
         }
 
-        // const points = [];
-        // const point = new Point(10, 10)
-        // for (let i = 0; i < 10; i++) {
-        //     const point = new Point(
-        //         Math.random() * 100,
-        //         Math.random() * 50,
-        //         Math.random() * 50,
-        //     )
-        //     points.push(point);
-        //     scene.add(point.mesh)
-        // }
+        const points = [];
+        for (let i = 0; i < 500; i++) {
+            const point = new Point(
+                Math.random() * 300 - 150,
+                Math.random() * 500 - 250,
+                Math.random() * 50,
+            )
+            points.push(point);
+            scene.add(point.mesh)
+        }
 
         function render() {
             renderer.render(scene, camera);
@@ -117,12 +143,15 @@
         function animate() {
             requestAnimationFrame(animate);
             render();
+            points.forEach(point => point.update());
             controls.update();
         }
 
 
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
+        const input = document.getElementById('input');
+        // let points = [];
         function getPointsPosition(text) {
             context.font = '100px Verdana bolder';
             context.fillStyle = '#000';
@@ -144,21 +173,47 @@
             }
             return points;
         }
-        let pointsPosition = getPointsPosition('tzc');
-        pointsPosition = pointsPosition.filter((_, i) => i % 3 === 0).map(i => i.filter((_, j) => j % 3 === 0));
-        pointsPosition.forEach((row, rowIndex) => {
-            row.forEach((item, columnIndex) => {
-                if (item[3] !== 0) {
-                    const point1 = new Point(rowIndex * 1.5, columnIndex * 1.5, 50);
-                    const point2 = new Point(rowIndex * 1.5, columnIndex * 1.5, 51.5);
-                    const point3 = new Point(rowIndex * 1.5, columnIndex * 1.5, 53);
-                    scene.add(point1.mesh);
-                    scene.add(point2.mesh);
-                    scene.add(point3.mesh);
-                }
+
+        function draw(text) {
+            let pointsPosition = getPointsPosition(text);
+            const allIndex = [];
+            for (let i = 0; i < points.length; i++) {
+                allIndex.push(i);
+            }
+            function getIndex() {
+                if (allIndex.length === 0) return -1;
+                const index = Math.floor(Math.random() * allIndex.length);
+                const reult = allIndex[index];
+                allIndex.splice(index, 1);
+                return reult;
+            }
+            pointsPosition = pointsPosition.filter((_, i) => i % 4 === 0).map(i => i.filter((_, j) => j % 4 === 0));
+            pointsPosition.forEach((row, rowIndex) => {
+                row.forEach((item, columnIndex) => {
+                    if (item[3] !== 0) {
+                        const currentIndex = getIndex();
+                        currentIndex >= 0 && points[currentIndex].setDestination(rowIndex * 1.5 , columnIndex * 1.5 , 50 );
+                    }
+                })
             })
-        })
+            
+            let currentIndex = getIndex();
+            while(currentIndex >= 0) {
+                console.log(currentIndex)
+                points[currentIndex].setDestination( points[currentIndex].sourceX, points[currentIndex].sourceY , points[currentIndex].sourceZ );
+                currentIndex = getIndex();
+            }
+        }
+
+        button.addEventListener('click', function () {
+            draw(input.value);
+        });
         animate();
+        let i = 10;
+        setInterval(() => {
+            i-- > 0 && draw(i);
+        }, 1500)
+        // render();
     </script>
     <!-- <script>
         const input = document.getElementById('input');
