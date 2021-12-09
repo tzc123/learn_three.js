@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        #content {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- <input id="input">
+    <button id="button">确定</button> -->
+    <!-- <canvas id="canvas" width="600" height="100"></canvas>
+    <canvas id="canvas2" width="600" height="100"></canvas> -->
+    <div id="content"></div>
+    <script src="./three.min.js"></script>
+    <script src="./TrackballControls.js"></script>
+    <script>
+        const t = THREE;
+        // init sense
+        const content = document.getElementById('content');
+        const width = content.clientWidth;
+        const height = content.clientHeight;
+        scene = new t.Scene()
+
+        renderer = new t.WebGLRenderer({
+            antialias: true
+        });
+
+        renderer.setSize(width, height);
+        renderer.setClearColor(0xffffff, 1.0);
+        content.appendChild(renderer.domElement);
+
+        // init camera
+        camera = new t.PerspectiveCamera(50, width / height, 0.1, 400);
+        camera.position.set(100, 0, 300)
+        camera.up.x = 0
+        camera.up.y = 0
+        camera.up.z = 1
+        camera.lookAt(0,0,0)
+        // 初始化轨迹球
+        controls = new t.TrackballControls(camera, content);
+        // 旋转速度
+        controls.rotateSpeed = 1.0;
+        // 变焦速度
+        controls.zoomSpeed = 1.2;
+        // 平移速度
+        controls.panSpeed = 0.8;
+        // 是否不变焦
+        controls.noZoom = false;
+        // 是否不平移
+        controls.noPan = false;
+        // 是否有惯性
+        controls.staticMoving = true;
+        // 动态阻尼系数 就是灵敏度
+        controls.dynamicDampingFactor = 0.3;
+        // [ rotateKey, zoomKey, panKey ]
+        controls.keys = [65, 83, 68];
+
+        // init light
+        // light = new t.DirectionalLight(0xffffff, 1.0, 0)
+        // light.position.set(1, 1, 1)
+        // scene.add(light);
+
+        class Point {
+            constructor(x, y, z) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                let geometry = new t.SphereGeometry(0.2, 10, 10)
+                let material = new t.MeshLambertMaterial({
+                    color: 0x000000,
+                    // transparent: true,
+                    // opacity: 0.3
+                });
+                let mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(x, y, z);
+                this.mesh = mesh;
+            }
+            setDestination(x, y, z) {
+                this.destination = { x, y, z };
+            }
+        }
+
+        // const points = [];
+        // const point = new Point(10, 10)
+        // for (let i = 0; i < 10; i++) {
+        //     const point = new Point(
+        //         Math.random() * 100,
+        //         Math.random() * 50,
+        //         Math.random() * 50,
+        //     )
+        //     points.push(point);
+        //     scene.add(point.mesh)
+        // }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+            controls.update();
+        }
+
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        function getPointsPosition(text) {
+            context.font = '100px Verdana bolder';
+            context.fillStyle = '#000';
+            context.clearRect(0, 0, 600, 100);
+            context.fillText(text, 0, 80);
+            const imageData = context.getImageData(0,0,600,100);
+            const data = imageData.data;
+            const p = [];
+            for (let i = 0; i < data.length; i+=4) {
+                p.push([data[i], data[i + 1], data[i + 2] ,data[i + 3]]);
+            }
+            const points = [];
+            for(let i = 0; i < p.length; i+=imageData.width) {
+                const row = [];
+                for(j = 0; j < imageData.width; j++) {
+                    row.push(p[i + j]);
+                }
+                points.push(row);
+            }
+            return points;
+        }
+        let pointsPosition = getPointsPosition('tzc');
+        pointsPosition = pointsPosition.filter((_, i) => i % 3 === 0).map(i => i.filter((_, j) => j % 3 === 0));
+        pointsPosition.forEach((row, rowIndex) => {
+            row.forEach((item, columnIndex) => {
+                if (item[3] !== 0) {
+                    const point1 = new Point(rowIndex * 1.5, columnIndex * 1.5, 50);
+                    const point2 = new Point(rowIndex * 1.5, columnIndex * 1.5, 51.5);
+                    const point3 = new Point(rowIndex * 1.5, columnIndex * 1.5, 53);
+                    scene.add(point1.mesh);
+                    scene.add(point2.mesh);
+                    scene.add(point3.mesh);
+                }
+            })
+        })
+        animate();
+    </script>
+    <!-- <script>
+        const input = document.getElementById('input');
+        const button = document.getElementById('button');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const canvas2 = document.getElementById('canvas2');
+        const context2 = canvas2.getContext('2d');
+        context2.save()
+        context.font = '100px Verdana bolder';
+        context.fillStyle = "#000";
+        context.lineWidth = 100;
+
+        button.addEventListener('click', function () {
+            context.clearRect(0, 0, 600, 100);
+            context.fillText(input.value, 0, 80);
+
+            function drawCirCle(x, y) {
+                context2.beginPath();
+                context2.arc(x * 4, y * 4, 1, 0, Math.PI * 2, false);
+                context2.closePath();
+                context2.fill();
+            }
+
+            const imageData = context.getImageData(0,0,300,100);　
+            context2.clearRect(0, 0, 600, 100);
+            const data = imageData.data;
+            const points = [];
+            for (let i = 0; i < data.length; i+=4) {
+                points.push([data[i], data[i + 1], data[i + 2] ,data[i + 3]]);
+            }
+
+            const p = [];
+            for(let i = 0; i < points.length; i+=300) {
+                const d = [];
+                for(j = 0; j < 300; j++) {
+                    d.push(points[i + j]);
+                }
+                p.push(d);
+            }
+            const e = p.filter((_, i) => i % 4 === 0).map(i => i.filter((_, j) => j % 4 === 0));
+            e.forEach((p, x) => {
+                p.forEach((i, y) => {
+                    if (i[3] !== 0) {
+                        console.log(0)
+                        drawCirCle(y, x);
+                    }
+                });
+            })
+    
+        })
+    </script> -->
+</body>
+</html>

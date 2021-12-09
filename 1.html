@@ -52,11 +52,7 @@
     camera.up.y = 1;
     camera.up.z = 0;
     //设置相机聚焦的位置(其实就是确定一个方向)
-    camera.lookAt({
-      x: 0,
-      y: 0,
-      z: 0
-    });
+    camera.lookAt(0,0,0);
   }
   function initObject() {
     //创建一个边长为100的立方体

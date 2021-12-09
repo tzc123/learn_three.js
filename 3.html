@@ -48,11 +48,7 @@
       camera.up.x = 0
       camera.up.y = 1
       camera.up.z = 0
-      camera.lookAt({
-        x: 0,
-        y: 0,
-        z: 0
-      })
+      camera.lookAt(0,0,0)
     }
     function initScene() {
       scene = new t.Scene()
@@ -63,12 +59,12 @@
       scene.add(light)
     }
     function initObject() {
-      var geometry = new t.Geometry()
+      var geometry = new t.CircleGeometry()
       var material = new t.LineBasicMaterial({ color: 0x00ff00 })
       var p1 = new t.Vector3(0, -500, 0)
       var p2 = new t.Vector3(0, 500, 0)
-      geometry.vertices.push(p1)
-      geometry.vertices.push(p2)
+      geometry.groups.push(p1)
+      geometry.groups.push(p2)
       var line = new t.Line(geometry, material, t.LineSegments)
       for (var i = 0; i < 100; i++) {
         var line = new t.Line(geometry, material, t.LineSegments)
