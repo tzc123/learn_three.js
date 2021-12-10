@@ -17,7 +17,7 @@
 <body>
 </body>
 <script src="./three.min.js"></script>
-<script src="./three.js/examples/js/controls/TrackballControls.js"></script>
+<script src="./TrackballControls.js"></script>
 <script>
   const t = THREE;
   let width= window.innerWidth,
@@ -48,7 +48,7 @@
       y: 0,
       z: 0
     });
-    controls = new THREE.TrackballControls( camera );
+    controls = new THREE.TrackballControls( camera, document.body );
     // // 旋转速度
     // controls.rotateSpeed = 1.0;
     // // 变焦速度

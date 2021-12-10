@@ -59,10 +59,9 @@
     }
     function initCamera() {
         // 透视投影相机
-        camera = new t.PerspectiveCamera(50, width / height, 0.1, 400)
+        // camera = new t.PerspectiveCamera(50, width / height, 0.1, 400)
+        camera = new t.OrthographicCamera(-100, 100, -50, 50, 0.1, 500)
         camera.position.set(100, 100, 100)
-        camera.up.x = 0
-        camera.up.y = 0
         camera.up.z = 1
         camera.lookAt(0,0,0)
         //正交投影相机
@@ -151,23 +150,23 @@
             ]);
             geometry.attributes.position = new THREE.BufferAttribute(positions, 3);
             geometry.attributes.position.onUploadCallback = () => { };
-            let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0xaaaaaa, opacity: 0.2, transparent: true }));
+            let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0xaaaaaa, opacity: 0.4, transparent: true }));
             return line
         }
     }
     function initObject() {
-        const geometry = new THREE.BoxBufferGeometry(50,50,50, 1, 1, 1);
+        // const geometry = new THREE.BoxBufferGeometry(50,50,50, 1, 1, 1);
 
-        // geometry.position.set(-25, -25, -25);
-        var material = new THREE.MeshLambertMaterial({
-            color: 0xf1f1f1,
-            transparent: true,
-            opacity: 0.1,
-            wireframe:true
-        }); //材质对象Material
-        var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
-        mesh.position.set(25, 25, 25);
-        scene.add(mesh); //网格模型添加到场景中
+        // // geometry.position.set(-25, -25, -25);
+        // var material = new THREE.MeshLambertMaterial({
+        //     color: 0xf9f9f9,
+        //     transparent: true,
+        //     opacity: 0.1,
+        //     wireframe:true
+        // }); //材质对象Material
+        // var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+        // mesh.position.set(25, 25, 25);
+        // scene.add(mesh); //网格模型添加到场景中
         
         for (let i = 0; i < 30; i++) {
             let sphere = new Sphere(

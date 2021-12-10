@@ -39,7 +39,7 @@
       renderer.setSize(width, height)
       log('setSized')
       document.getElementById('frame').appendChild(renderer.domElement)
-      renderer.setClearColor(0x9900ff, 1);
+      renderer.setClearColor(0xffffff, 1);
       log('setColored')
     }
     function initCamera() {
@@ -60,6 +60,7 @@
     }
     function initObject() {
       var geometry = new t.CircleGeometry()
+      console.log(geometry)
       var material = new t.LineBasicMaterial({ color: 0x00ff00 })
       var p1 = new t.Vector3(0, -500, 0)
       var p2 = new t.Vector3(0, 500, 0)
