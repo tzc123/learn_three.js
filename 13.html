@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        #content {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"></div>
+    <script src="./three.min.js"></script>
+    <script src="./TrackballControls.js"></script>
+    <script>
+        const t = THREE;
+        const content = document.getElementById('content');
+        const width = content.clientWidth;
+        const height = content.clientHeight;
+        const scene = new t.Scene()
+
+        renderer = new t.WebGLRenderer({
+            antialias: true
+        });
+
+        renderer.setSize(width, height);
+        renderer.setClearColor(0xf9f9f9, 1.0);
+        content.appendChild(renderer.domElement);
+
+        camera = new t.PerspectiveCamera(50, width / height, 0.1, 500, 0);
+        camera.position.set(0, 0, 1)
+        camera.up.z = 1
+        camera.lookAt(1, 0, 0)
+
+        controls = new t.TrackballControls(camera, content);
+        // 旋转速度
+        controls.rotateSpeed = 3.0;
+        // 变焦速度
+        controls.zoomSpeed = 10;
+        // 平移速度
+        controls.panSpeed = 0.8;
+        // 是否不变焦
+        controls.noZoom = false;
+        // 是否不平移
+        controls.noPan = true;
+        // 是否有惯性
+        controls.staticMoving = true;
+        // 动态阻尼系数 就是灵敏度
+        controls.dynamicDampingFactor = 0.3;
+        // [ rotateKey, zoomKey, panKey ]
+        controls.keys = [65, 83, 68];
+        const loader = new THREE.TextureLoader();
+        const geometry = new THREE.SphereGeometry(100, 100 ,100);
+        const material = new THREE.MeshBasicMaterial({
+                // color: 0xffff00,
+                // wireframe: true,
+                side: THREE.BackSide,
+                map: loader.load('/bg.jpeg')
+            });
+            const cylinder = new THREE.Mesh( geometry, material );
+            scene.add( cylinder );
+            animate();
+
+
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+            controls.update();
+        }
+
+    </script>
+</body>
+</html>
