@@ -1,76 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
 </head>
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-  }
-  html,body {
-    height: 100%;
-    width: 100%;
-  }
-  #three_canvas {
-    width: 100%;
-    height: 100%;
-    }
+	* {
+		margin: 0;
+		padding: 0;
+	}
+
+	html,
+	body {
+		height: 100%;
+		width: 100%;
+	}
+
+	#three_canvas {
+		width: 100%;
+		height: 100%;
+	}
+	button {
+		margin-right: 10px;
+	}
 </style>
 <script src="./three.min.js"></script>
+<script src="./TrackballControls.js"></script>
+<script src="./STLLoader.js"></script>
+
 <body>
-  <canvas id="three_canvas"></canvas>
+	<div>相机：<button id="OrthographicCamera">正交相机</button><button id="PerspectiveCamera">透视相机相机</button></div>
+	<div>几何模型：<button id="Box">立方体</button><button id="Sphere">球体</button><button id="Lion">狮子</button></div>
+	<div>网格模式：<button id="WireFrame">开关</button></div>
+	<div>光照：<button id="Ambient">环境光</button><button id="Direction">平行光</button><button id="Point">点光源</button><button id="Spot">聚光源</button></div>
+	<canvas id="three_canvas"></canvas>
 </body>
 <script>
-  const t = THREE
-  let width,height,renderer,object,object1,camera,scene
-  function initRenderer() {
-    width = document.getElementById('three_canvas').clientWidth;
-    height = document.getElementById('three_canvas').clientHeight;
-    renderer = new t.WebGLRenderer({
-    //将Canvas绑定到renderer
-    canvas: document.getElementById('three_canvas')
-    });
-    renderer.setSize(width, height);//将渲染的大小设为与Canvas相同
-    renderer.setClearColor(0xeeffff, 1.0);//设置默认颜色与透明度
-  }
-  function initScene() {
-    scene = new t.Scene();
-  }
-  function initCamera() {
-    //简单的正交投影相机，正对着视口的中心，视口大小与Canvas大小相同。
-    camera = new t.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 1000);
-    //设置相机的位置
-    camera.position.x = 0;
-    camera.position.y = 0;
-    camera.position.z = 200;
-    //设置相机的上方向
-    camera.up.x = 0;
-    camera.up.y = 1;
-    camera.up.z = 0;
-    //设置相机聚焦的位置(其实就是确定一个方向)
-    camera.lookAt(0,0,0);
-  }
-  function initObject() {
-    //创建一个边长为100的立方体
-    var geometry = new THREE.SphereGeometry(50,16,16)
-    object = new t.Mesh(geometry, new t.MeshNormalMaterial());
-    scene.add(object);
-  }
-  function render() {
-    requestAnimationFrame(render)
-    renderer.render(scene, camera);
-  }
-  function tStart() {
-    initRenderer();
-    initCamera();
-    initScene();
-    initObject();
-    render();
-  }
-  window.onload = tStart();
+	const t = THREE
+	let width, height, renderer, mesh, camera, scene, light, wireframe = false
+	function initRenderer() {
+		width = document.getElementById('three_canvas').clientWidth;
+		height = document.getElementById('three_canvas').clientHeight;
+		renderer = new t.WebGLRenderer({
+			//将Canvas绑定到renderer
+			canvas: document.getElementById('three_canvas')
+		});
+		renderer.setSize(width, height);//将渲染的大小设为与Canvas相同
+		renderer.setClearColor(0x999999, 1.0);//设置默认颜色与透明度
+	}
+	function initScene() {
+		scene = new t.Scene();
+	}
+	function addOrthographicCamera() {
+		camera && scene.remove(camera);
+		//简单的正交投影相机，正对着视口的中心，视口大小与Canvas大小相同。
+		camera = new t.OrthographicCamera(width / -4, width / 4, height / 4, height / -4, 1, 1000);
+		//设置相机的位置
+		camera.position.x = 0;
+		camera.position.y = 0;
+		camera.position.z = 200;
+		//设置相机的上方向
+		camera.up.x = 0;
+		camera.up.y = 1;
+		camera.up.z = 0;
+		//设置相机聚焦的位置(其实就是确定一个方向)
+		camera.lookAt(0, 0, 0);
+
+		controls = new t.TrackballControls(camera, document.getElementById('three_canvas'));
+		// 旋转速度
+		controls.rotateSpeed = 3.0;
+		// 变焦速度
+		controls.zoomSpeed = 1.2;
+		// 平移速度
+		controls.panSpeed = 0.8;
+		// 是否不变焦
+		controls.noZoom = false;
+		// 是否不平移
+		controls.noPan = false;
+		// 是否有惯性
+		controls.staticMoving = true;
+		// 动态阻尼系数 就是灵敏度
+		controls.dynamicDampingFactor = 0.3;
+		// [ rotateKey, zoomKey, panKey ]
+	}
+	function addPerspectiveCamera() {
+		camera && scene.remove(camera);
+		camera = new t.PerspectiveCamera(110, width / height, 0.1, 1000, 0);
+		camera.position.set(0, 0, 200)
+		camera.up.z = 1
+		camera.lookAt(0, 0, 0)
+		controls = new t.TrackballControls(camera, document.getElementById('three_canvas'));
+		// 旋转速度
+		controls.rotateSpeed = 3.0;
+		// 变焦速度
+		controls.zoomSpeed = 1.2;
+		// 平移速度
+		controls.panSpeed = 0.8;
+		// 是否不变焦
+		controls.noZoom = false;
+		// 是否不平移
+		controls.noPan = false;
+		// 是否有惯性
+		controls.staticMoving = true;
+		// 动态阻尼系数 就是灵敏度
+		controls.dynamicDampingFactor = 0.3;
+	}
+	function initObject(geometryType) {
+		//创建一个边长为100的立方体
+		mesh && scene.remove(mesh);
+		var geometry
+		if (geometryType === 'sphere') {
+			geometry = new t.SphereBufferGeometry(100);
+		} else if (geometryType === 'lion') {
+			const loader = new THREE.STLLoader();
+			loader.load('/P.stl', geometry => {
+				const meterial = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    specular:0x000000,
+                    shininess:20
+				})
+				mesh = new t.Mesh(geometry, meterial);
+				mesh.scale.set(0.2, 0.2, 0.2);
+				mesh.rotation.x = -0.5 * Math.PI;
+				scene.add(mesh);
+			});
+		} else {
+			geometry = new t.BoxBufferGeometry(100, 100, 100)
+		}
+		// const meterial = new t.MeshBasicMaterial({
+		// 	color: 0xffffff
+		// })
+		const meterial = new t.MeshNormalMaterial({
+			wireframe
+		})
+		if (geometryType !== 'lion') {
+			mesh = new t.Mesh(geometry, meterial);
+			scene.add(mesh);
+		}
+	}
+	function initLight(type) {
+		light && scene.remove(light);
+		if (type === 'direction') {
+			light = new t.DirectionalLight(0xffeedd);
+			light.position.set(0, 2, 0);
+		} else if (type === 'point') {
+			light = new t.PointLight(0xffeedd);
+			light.position.set(0, 100, 0);
+		} else if (type === 'spot') {
+			light = new t.SpotLight(0xffeedd);
+			light.position.set(0, 100, 0);
+		} else {
+			light = new t.AmbientLight(0xffeedd);
+		}
+		scene.add(light);
+	}
+	function render() {
+		requestAnimationFrame(render)
+		renderer.render(scene, camera);
+		controls.update();
+	}
+	function tStart() {
+		initRenderer();
+		addOrthographicCamera();
+		initScene();
+		initObject();
+		initLight();
+		render();
+	}
+	window.onload = tStart();
+	document.getElementById('OrthographicCamera').addEventListener('click', addOrthographicCamera);
+	document.getElementById('PerspectiveCamera').addEventListener('click', addPerspectiveCamera);
+	document.getElementById('Box').addEventListener('click', () => initObject('box'));
+	document.getElementById('Sphere').addEventListener('click', () => initObject('sphere'));
+	document.getElementById('Lion').addEventListener('click', () => initObject('lion'));
+	document.getElementById('Direction').addEventListener('click', () => initLight('direction'));
+	document.getElementById('Ambient').addEventListener('click', () => initLight());
+	document.getElementById('Spot').addEventListener('click', () => initLight('spot'));
+	document.getElementById('Point').addEventListener('click', () => initLight('point'));
+	document.getElementById('WireFrame').addEventListener('click', () => {
+		wireframe = !wireframe;
+		initObject('box')
+	});
 </script>
+
 </html>
